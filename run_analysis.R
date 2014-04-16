@@ -53,6 +53,5 @@ main <- function() {
 	write.table(x_merged, f_tidy, row.names=F)
     
     #return tidy dataset
-    #return(x_test)
 	return(x_merged)
 }
