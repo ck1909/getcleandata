@@ -1,7 +1,7 @@
-getcleandata
+README
 ============
 
-This repo contains the following files:
+The repo **getcleandata** contains the following files:
 - CodeBook.md that describes the variables, the data, and data cleaning transformations performed
 - README.md
 - run_analysis.R that contains the functions for getting, cleaning, and outputting the data

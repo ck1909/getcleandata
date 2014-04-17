@@ -1,15 +1,15 @@
-#getting and cleaning data
+#This scripts implements functions for getting and cleaning data
 
-read_dataset_xy <- function(f_x, names_x, f_y, names_y, f_labels) {
-	#read x and y data
+read_dataset_xy <- function(f_x, names_x, f_y, names_y, labels) {
+	#read sensor data
     x <- read.table(f_x, col.names = names_x)
+    
     #store only columns containing mean and std data
     x <- subset(x, select=grep("mean()|std()", colnames(x)))
-    #colnames(x) <- names_x
-	y <- read.table(f_y, col.names = names_y)
-    #get activity labels
-	labels <- read.table(f_labels)
 	
+    #read activity data
+    y <- read.table(f_y, col.names = names_y)
+    
 	#convert y vals to human-readable chars	
     lc <- as.character(labels$V2)
 	y$activity <- as.character(y$activity)
@@ -21,13 +21,34 @@ read_dataset_xy <- function(f_x, names_x, f_y, names_y, f_labels) {
 }
 
 merge_test_train <- function(data_test, data_train) {
+    #derive combined dataset
 	data_merged <- rbind(data_test, data_train)
 	return(data_merged)
+}
+
+avg_by_activity <- function(dataset, labels) {
+    #create empty dataframe for storing tidy data
+    avg <- NULL
+    
+    for(i in 1:length(labels$V2)) {
+        a <- subset(dataset, dataset$activity == labels$V2[i])
+        
+        #calculate averages for columns of ith activity
+        c <- colMeans(Filter(is.numeric, a))
+    
+        #merge new and old tidy data 
+        avg <- rbind(avg, c)
+    }
+    activity <- as.character(labels$V2)
+    
+    #return full tidy data
+    return(cbind(avg, activity))
 }
 
 main <- function() {
 	#get working directory path
 	wd <- getwd()
+    
 	#derive file names for test and training data sets (X and Y files for each)
 	f_x_test <- paste(wd, "/X_test.txt", sep="")
 	f_y_test <- paste(wd, "/Y_test.txt", sep="")
@@ -42,17 +63,22 @@ main <- function() {
     names_x <- features$V2
 	names_y <- c("activity")
 	
+	#get activity labels
+	labels <- read.table(f_labels)
+    
     #read datasets
-	x_test <- read_dataset_xy(f_x_test, names_x, f_y_test, names_y, f_labels)
-	x_train <- read_dataset_xy(f_x_train, names_x, f_y_train, names_y, f_labels)
+	x_test <- read_dataset_xy(f_x_test, names_x, f_y_test, names_y, labels)
+	x_train <- read_dataset_xy(f_x_train, names_x, f_y_train, names_y, labels)
 	
     #merge datasets
     x_merged <- merge_test_train(x_test, x_train)
 	
-    #write tidy dataset to txt file (optional)
-	write.table(x_merged, f_tidy, row.names=F)
+    #generate tidy dataset of averages by feature and activity type
+    tidy_data <- avg_by_activity(x_merged, labels)
     
-    #return tidy dataset
-    #return(x_test)
-	return(x_merged)
+    #write tidy dataset to txt file (optional)
+	write.table(tidy_data, f_tidy, row.names=F)
+    
+    #return tidy dataset as a dataframe
+	return(tidy_data)
 }
