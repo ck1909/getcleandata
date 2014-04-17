@@ -17,6 +17,10 @@ The data cleaning steps are encapsulated in functions in the script "run_analysi
 - Dataset is cropped to retain only the mean and std data, to give clean dataset.
 - The activity numbers in the raw data are replaced with more descriptive activity names.
 
+*avg_by_activity()*
+- Generates tidy dataset of average feature data for each activy type
+- returns dataframe with a row per activity type
+
 *merge_test_train()*
 - A clean training dataset is appended below a clean test dataset.
 - Assumes that datasets passed to this function are in fact clean.
